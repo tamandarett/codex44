@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Encurtador de Código PIX</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background: #f2f2f2;
+    }
+    img.logo {
+      width: 180px;
+      margin-bottom: 20px;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, button {
+      padding: 10px;
+      margin-top: 10px;
+      width: 100%;
+      font-size: 16px;
+    }
+    #resultado {
+      margin-top: 20px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="logo.png" alt="Logo" class="logo" />
+    <h2>Gerar Link Curto para Código PIX</h2>
+    <input type="text" id="codigoPix" placeholder="Cole o código PIX Copia e Cola aqui" />
+    <button onclick="gerarLink()">Gerar Link</button>
+    <div id="resultado"></div>
+  </div>
+
+  <script>
+    function gerarLink() {
+      const codigo = document.getElementById("codigoPix").value.trim();
+      if (!codigo) {
+        alert("Por favor, insira o código PIX.");
+        return;
+      }
+
+      const encoded = encodeURIComponent(codigo);
+      const hash = Math.random().toString(36).substring(2, 8);
+      localStorage.setItem("pix-" + hash, encoded);
+
+      const link = window.location.origin + "/pix-pagina/r.html?ref=" + hash;
+      document.getElementById("resultado").innerHTML = \`<p>Link gerado:</p><a href="\${link}" target="_blank">\${link}</a>\`;
+    }
+  </script>
+</body>
+</html>
