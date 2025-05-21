@@ -9,6 +9,7 @@
             --cor-primaria: #2563eb;
             --cor-secundaria: #1e40af;
             --fundo: #f9fafb;
+            --cor-botao-copiar: #e63946; /* Vermelho */
         }
         
         body {
@@ -32,10 +33,6 @@
             max-width: 600px;
             margin: 0 auto;
             text-align: center;
-            display: flex;
-            flex-direction: column;
-            height: auto;
-            max-height: 90vh;
         }
         
         .logo {
@@ -68,7 +65,7 @@
             border-color: var(--cor-primaria);
         }
         
-        button {
+        .botao-gerar {
             background-color: var(--cor-primaria);
             color: white;
             border: none;
@@ -80,11 +77,29 @@
             transition: background-color 0.3s;
             margin: 10px 0;
             width: 100%;
-            max-width: 100%;
         }
         
-        button:hover {
+        .botao-gerar:hover {
             background-color: var(--cor-secundaria);
+        }
+        
+        .botao-copiar {
+            background-color: var(--cor-botao-copiar);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            width: 50%;
+            margin: 10px auto;
+            display: block;
+        }
+        
+        .botao-copiar:hover {
+            opacity: 0.9;
         }
         
         #resultado {
@@ -95,9 +110,6 @@
             word-break: break-all;
             text-align: left;
             white-space: pre-line;
-            overflow-y: auto;
-            max-height: 300px;
-            flex-grow: 1;
         }
         
         footer {
@@ -107,18 +119,6 @@
             font-size: 14px;
             width: 100%;
         }
-
-        @media (max-height: 800px) {
-            .container {
-                padding: 20px;
-            }
-            textarea {
-                height: 100px;
-            }
-            #resultado {
-                max-height: 200px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -127,12 +127,12 @@
         <h1>Gerador de link PIX Tamandaré Tintas</h1>
         
         <textarea id="codigoPix" placeholder="Cole o código PIX aqui..."></textarea>
-        <button onclick="encurtar()">Gerar Link</button>
+        <button class="botao-gerar" onclick="encurtar()">Gerar Link</button>
+        <button id="botaoCopiar" class="botao-copiar" onclick="copiarMensagem()" style="display: none;">Copiar Mensagem</button>
         
         <div id="resultado" style="display: none;">
             <p><strong>Mensagem para o cliente:</strong></p>
             <div id="mensagemCliente"></div>
-            <button onclick="copiarMensagem()">Copiar Mensagem</button>
         </div>
     </div>
     
@@ -152,9 +152,11 @@
 
             const urlCompleta = `https://tamandarett.github.io/pix-pagina/pix.html?codigo=${encodeURIComponent(valorCodigo)}&t=${Date.now()}`;
             const resultadoDiv = document.getElementById('resultado');
+            const botaoCopiar = document.getElementById('botaoCopiar');
             
             try {
                 resultadoDiv.style.display = 'none';
+                botaoCopiar.style.display = 'none';
                 
                 const response = await fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(urlCompleta)}`);
                 const data = await response.json();
@@ -174,8 +176,9 @@ Obrigado(a)!`;
                 
                 document.getElementById('mensagemCliente').textContent = mensagem;
                 resultadoDiv.style.display = 'block';
-                codigoPix.value = ''; // Limpa o campo
-                codigoPix.focus(); // Foca no campo para nova colagem
+                botaoCopiar.style.display = 'block';
+                codigoPix.value = '';
+                codigoPix.focus();
                 
             } catch (error) {
                 alert("Erro ao gerar o link. Por favor, tente novamente.");
@@ -186,8 +189,8 @@ Obrigado(a)!`;
         function copiarMensagem() {
             const mensagem = document.getElementById("mensagemCliente").textContent;
             navigator.clipboard.writeText(mensagem).then(() => {
-                const btn = document.querySelector('#resultado button');
-                btn.textContent = "Mensagem Copiada!";
+                const btn = document.getElementById('botaoCopiar');
+                btn.textContent = "Copiado!";
                 setTimeout(() => { btn.textContent = "Copiar Mensagem"; }, 2000);
             });
         }
