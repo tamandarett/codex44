@@ -156,13 +156,13 @@
         const sequencia2 = "MARQUIVENTURINICOMERCIO".substring(0, 10);
         
         if (!valorCodigo.includes(sequencia1) && !valorCodigo.includes(sequencia2)) {
-            alert(`Código PIX inválido! Deve conter:\n"${sequencia1}" ou "${sequencia2}"`);
+            alert(`Código PIX inválido! Beneficiário desconhecido"`);
             return;
         }
 
         // Verifica a categoria PIX (52040000)
         if (!valorCodigo.includes("52040000")) {
-            alert("Categoria PIX inválida! Use apenas códigos com categoria 52040000");
+            alert("Categoria PIX inválida!");
             return;
         }
 
