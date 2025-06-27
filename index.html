@@ -145,22 +145,25 @@
         const codigoPix = document.getElementById('codigoPix');
         const valorCodigo = codigoPix.value.trim();
         
-        // Validações adicionadas (conforme solicitado)
         if (!valorCodigo) {
             alert("Por favor, cole o código PIX antes de gerar o link!");
             return;
         }
 
-        // Verifica se contém as sequências exigidas (10 primeiros caracteres)
-        const sequencia1 = "TAMANDARETINTASDEINDA".substring(0, 10);
-        const sequencia2 = "MARQUIVENTURINICOMERCIO".substring(0, 10);
+        // Verificações de beneficiário permitidas (com ou sem & comercial)
+        const sequenciasValidas = [
+            "TAMANDARETINTASDEINDA".substring(0, 10),
+            "MARQUIVENTURINICOMERCIO".substring(0, 10),
+            "MARQUI&VENTURINICOMERCIO".substring(0, 10)
+        ];
+
+        const beneficiarioValido = sequenciasValidas.some(seq => valorCodigo.includes(seq));
         
-        if (!valorCodigo.includes(sequencia1) && !valorCodigo.includes(sequencia2)) {
-            alert(`Código PIX inválido! Beneficiário desconhecido`);
+        if (!beneficiarioValido) {
+            alert("Código PIX inválido! Beneficiário desconhecido");
             return;
         }
 
-        // Verifica a categoria PIX (52040000)
         if (!valorCodigo.includes("52040000")) {
             alert("Categoria PIX inválida!");
             return;
