@@ -167,7 +167,7 @@
         <img src="logo.png" alt="Tamandaré Tintas" class="logo">
         <h1>Gerador de link PIX Tamandaré Tintas</h1>
         
-        <textarea id="codigoPix" placeholder="Cole o código PIX aqui ou use o botão Colar..."></textarea>
+        <textarea id="codigoPix" placeholder="Cole o código PIX aqui..."></textarea>
         <div id="errorMessage"></div> <!-- Nova div para mensagens de erro -->
 
         <div class="button-row">
@@ -222,8 +222,15 @@
 
         // Nova verificação: impede a geração se o código PIX começar com "http://" ou "https://"
         if (valorCodigo.startsWith("http://") || valorCodigo.startsWith("https://")) {
-            showErrorMessage("O código começa com http ou https o que indica que ele foi copiado de forma errada, verifique.");
+            showErrorMessage("Por favor, cole apenas o código PIX, não o link completo.");
             console.error("Código PIX inválido: Contém prefixo de URL.");
+            return;
+        }
+
+        // Nova verificação: o código PIX deve começar com "000201"
+        if (!valorCodigo.startsWith("000201")) {
+            showErrorMessage("Código PIX inválido! Deve começar com '000201'.");
+            console.error("Código PIX inválido: Não começa com '000201'.");
             return;
         }
 
