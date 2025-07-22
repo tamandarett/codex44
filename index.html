@@ -222,7 +222,7 @@
 
         // Nova verificação: impede a geração se o código PIX começar com "http://" ou "https://"
         if (valorCodigo.startsWith("http://") || valorCodigo.startsWith("https://")) {
-            showErrorMessage("Por favor, cole apenas o código PIX, não o link completo.");
+            showErrorMessage("O código começa com http ou https o que indica que ele foi copiado de forma errada, verifique.");
             console.error("Código PIX inválido: Contém prefixo de URL.");
             return;
         }
