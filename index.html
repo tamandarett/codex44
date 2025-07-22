@@ -141,6 +141,17 @@
             text-align: left;
             white-space: pre-line;
         }
+
+        #errorMessage { /* Novo estilo para a mensagem de erro */
+            color: #ef4444; /* Vermelho vibrante para erro */
+            background-color: #fee2e2; /* Fundo claro para o erro */
+            border: 1px solid #fca5a5;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            display: none; /* Escondido por padrão */
+            font-weight: 500;
+        }
         
         footer {
             margin-top: auto;
@@ -157,9 +168,10 @@
         <h1>Gerador de link PIX Tamandaré Tintas</h1>
         
         <textarea id="codigoPix" placeholder="Cole o código PIX aqui..."></textarea>
+        <div id="errorMessage"></div> <!-- Nova div para mensagens de erro -->
 
         <div class="button-row">
-            <button class="botao-colar" onclick="colarCodigoPix()">Colar</button>
+            <button class="botao-colar" onclick="colarCodigoPix(this)">Colar</button>
             <button class="botao-gerar" onclick="encurtar()">Gerar Link</button>
         </div>
         
@@ -177,6 +189,20 @@
 
 <script>
     /**
+     * Exibe uma mensagem de erro na UI por um período de tempo.
+     * @param {string} message - A mensagem de erro a ser exibida.
+     */
+    function showErrorMessage(message) {
+        const errorMessageDiv = document.getElementById('errorMessage');
+        errorMessageDiv.textContent = message;
+        errorMessageDiv.style.display = 'block'; // Mostra a div de erro
+        setTimeout(() => {
+            errorMessageDiv.style.display = 'none'; // Esconde a div de erro após 3 segundos
+            errorMessageDiv.textContent = ''; // Limpa o texto
+        }, 3000);
+    }
+
+    /**
      * Função assíncrona para encurtar o código PIX e gerar a mensagem para o cliente.
      * Realiza validações do código PIX e faz uma requisição para um serviço de encurtamento de URL.
      */
@@ -184,10 +210,13 @@
         const codigoPix = document.getElementById('codigoPix');
         const valorCodigo = codigoPix.value.trim();
         
+        // Esconde o resultado e o botão de copiar ao iniciar uma nova tentativa
+        document.getElementById('resultado').style.display = 'none';
+        document.getElementById('botaoCopiar').style.display = 'none';
+
         if (!valorCodigo) {
-            // Utiliza um console.error em vez de alert() para evitar bloqueio da UI
+            showErrorMessage("Por favor, cole o código PIX antes de gerar o link!");
             console.error("Por favor, cole o código PIX antes de gerar o link!");
-            // Poderia adicionar uma mensagem visível na UI aqui, mas o pedido é para não mudar nada além do botão.
             return;
         }
 
@@ -201,11 +230,13 @@
         const beneficiarioValido = sequenciasValidas.some(seq => valorCodigo.includes(seq));
         
         if (!beneficiarioValido) {
+            showErrorMessage("Código PIX inválido! Beneficiário desconhecido.");
             console.error("Código PIX inválido! Beneficiário desconhecido");
             return;
         }
 
         if (!valorCodigo.includes("52040000")) {
+            showErrorMessage("Categoria PIX inválida!");
             console.error("Categoria PIX inválida!");
             return;
         }
@@ -215,9 +246,6 @@
         const botaoCopiar = document.getElementById('botaoCopiar');
         
         try {
-            resultadoDiv.style.display = 'none';
-            botaoCopiar.style.display = 'none';
-            
             // Requisição para o serviço de encurtamento de URL
             const response = await fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(urlCompleta)}`);
             const data = await response.json();
@@ -242,6 +270,7 @@ Obrigado(a)!`;
             codigoPix.focus(); // Coloca o foco na textarea
             
         } catch (error) {
+            showErrorMessage("Erro ao gerar o link. Por favor, tente novamente.");
             console.error("Erro ao gerar o link. Por favor, tente novamente.", error);
         }
     }
@@ -273,18 +302,26 @@ Obrigado(a)!`;
     /**
      * Função assíncrona para colar o conteúdo da área de transferência na textarea do código PIX.
      * Solicita permissão de leitura da área de transferência ao navegador.
+     * @param {HTMLElement} btn - O botão que acionou a função.
      */
-    async function colarCodigoPix() {
+    async function colarCodigoPix(btn) {
         const codigoPixTextarea = document.getElementById('codigoPix');
+        const originalText = btn.textContent; // Armazena o texto original do botão
+
+        btn.textContent = "Colando..."; // Feedback imediato
+
         try {
             // Tenta ler o conteúdo da área de transferência
             const text = await navigator.clipboard.readText();
             codigoPixTextarea.value = text;
             codigoPixTextarea.focus(); // Coloca o foco na textarea após colar
+            btn.textContent = "Colado!"; // Feedback de sucesso
+            setTimeout(() => { btn.textContent = originalText; }, 2000); // Retorna ao texto original
         } catch (err) {
             // Em caso de erro (ex: permissão negada, não em ambiente seguro), informa o usuário
-            console.error('Falha ao colar o código. Por favor, cole manualmente (Ctrl+V ou Cmd+V).', err);
-            // Poderia adicionar uma mensagem visível na UI aqui para o usuário colar manualmente
+            console.error('Falha ao colar o código automaticamente. Por favor, cole manualmente (Ctrl+V ou Cmd+V) na caixa de texto.', err);
+            btn.textContent = "Falha ao Colar"; // Feedback de falha
+            setTimeout(() => { btn.textContent = originalText; }, 2000); // Retorna ao texto original
             codigoPixTextarea.focus(); // Ainda coloca o foco para facilitar a colagem manual
         }
     }
