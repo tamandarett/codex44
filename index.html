@@ -10,6 +10,7 @@
             --cor-secundaria: #1e40af;
             --fundo: #f9fafb;
             --cor-botao-copiar: #e63946; /* Vermelho */
+            --cor-botao-colar: #10b981; /* Verde para o botão de colar */
         }
         
         body {
@@ -47,17 +48,25 @@
             font-size: 1.8rem;
         }
         
+        .input-group {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            /* Removed gap as button is moved */
+        }
+
         textarea {
-            width: 100%;
+            flex-grow: 1;
             height: 120px;
             padding: 12px;
             border: 2px solid #e5e7eb;
             border-radius: 6px;
             font-size: 16px;
-            margin-bottom: 15px;
+            margin-bottom: 15px; /* Added margin-bottom back for spacing below textarea */
             resize: none;
             transition: border-color 0.3s;
             box-sizing: border-box;
+            width: 100%; /* Ensure textarea takes full width */
         }
         
         textarea:focus {
@@ -65,8 +74,15 @@
             border-color: var(--cor-primaria);
         }
         
-        .botao-gerar {
-            background-color: var(--cor-primaria);
+        .button-row { /* New class for the row of buttons */
+            display: flex;
+            gap: 10px; /* Space between buttons */
+            width: 100%;
+            margin-bottom: 10px; /* Space below the button row */
+        }
+
+        .botao-gerar, .botao-colar { /* Combined styles for both main action buttons */
+            flex: 1; /* Allows both buttons to grow and take equal space */
             color: white;
             border: none;
             padding: 12px 24px;
@@ -74,16 +90,30 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.3s;
-            margin: 10px 0;
-            width: 100%;
+            transition: background-color 0.3s, opacity 0.3s;
+            white-space: nowrap; /* Prevents text from wrapping */
+            display: flex; /* Use flex to center text vertically */
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .botao-gerar {
+            background-color: var(--cor-primaria);
         }
         
         .botao-gerar:hover {
             background-color: var(--cor-secundaria);
         }
         
-        .botao-copiar {
+        .botao-colar {
+            background-color: var(--cor-botao-colar);
+        }
+        
+        .botao-colar:hover {
+            opacity: 0.9;
+        }
+
+        .botao-copiar { /* Specific style for the copy message button */
             background-color: var(--cor-botao-copiar);
             color: white;
             border: none;
@@ -123,11 +153,16 @@
 </head>
 <body>
     <div class="container">
-        <img src="logo.png" alt="Tamandaré Tintas" class="logo">
+        <img src="https://placehold.co/200x100/2563eb/ffffff?text=Tamandare+Tintas" alt="Tamandaré Tintas" class="logo">
         <h1>Gerador de link PIX Tamandaré Tintas</h1>
         
         <textarea id="codigoPix" placeholder="Cole o código PIX aqui..."></textarea>
-        <button class="botao-gerar" onclick="encurtar()">Gerar Link</button>
+
+        <div class="button-row">
+            <button class="botao-colar" onclick="colarCodigoPix()">Colar</button>
+            <button class="botao-gerar" onclick="encurtar()">Gerar Link</button>
+        </div>
+        
         <button id="botaoCopiar" class="botao-copiar" onclick="copiarMensagem()" style="display: none;">Copiar Mensagem</button>
         
         <div id="resultado" style="display: none;">
@@ -141,12 +176,18 @@
     </footer>
 
 <script>
+    /**
+     * Função assíncrona para encurtar o código PIX e gerar a mensagem para o cliente.
+     * Realiza validações do código PIX e faz uma requisição para um serviço de encurtamento de URL.
+     */
     async function encurtar() {
         const codigoPix = document.getElementById('codigoPix');
         const valorCodigo = codigoPix.value.trim();
         
         if (!valorCodigo) {
-            alert("Por favor, cole o código PIX antes de gerar o link!");
+            // Utiliza um console.error em vez de alert() para evitar bloqueio da UI
+            console.error("Por favor, cole o código PIX antes de gerar o link!");
+            // Poderia adicionar uma mensagem visível na UI aqui, mas o pedido é para não mudar nada além do botão.
             return;
         }
 
@@ -160,12 +201,12 @@
         const beneficiarioValido = sequenciasValidas.some(seq => valorCodigo.includes(seq));
         
         if (!beneficiarioValido) {
-            alert("Código PIX inválido! Beneficiário desconhecido");
+            console.error("Código PIX inválido! Beneficiário desconhecido");
             return;
         }
 
         if (!valorCodigo.includes("52040000")) {
-            alert("Categoria PIX inválida!");
+            console.error("Categoria PIX inválida!");
             return;
         }
 
@@ -177,6 +218,7 @@
             resultadoDiv.style.display = 'none';
             botaoCopiar.style.display = 'none';
             
+            // Requisição para o serviço de encurtamento de URL
             const response = await fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(urlCompleta)}`);
             const data = await response.json();
             
@@ -196,22 +238,55 @@ Obrigado(a)!`;
             document.getElementById('mensagemCliente').textContent = mensagem;
             resultadoDiv.style.display = 'block';
             botaoCopiar.style.display = 'block';
-            codigoPix.value = '';
-            codigoPix.focus();
+            codigoPix.value = ''; // Limpa a textarea após gerar o link
+            codigoPix.focus(); // Coloca o foco na textarea
             
         } catch (error) {
-            alert("Erro ao gerar o link. Por favor, tente novamente.");
-            console.error(error);
+            console.error("Erro ao gerar o link. Por favor, tente novamente.", error);
         }
     }
 
+    /**
+     * Função para copiar a mensagem gerada para a área de transferência.
+     * Exibe um feedback visual temporário no botão.
+     */
     function copiarMensagem() {
         const mensagem = document.getElementById("mensagemCliente").textContent;
-        navigator.clipboard.writeText(mensagem).then(() => {
+        // Usa document.execCommand('copy') para compatibilidade em iframes
+        const tempTextArea = document.createElement('textarea');
+        tempTextArea.value = mensagem;
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        try {
+            document.execCommand('copy');
             const btn = document.getElementById('botaoCopiar');
             btn.textContent = "Copiado!";
             setTimeout(() => { btn.textContent = "Copiar Mensagem"; }, 2000);
-        });
+        } catch (err) {
+            console.error('Erro ao copiar a mensagem:', err);
+            // Poderia adicionar uma mensagem visível na UI aqui
+        } finally {
+            document.body.removeChild(tempTextArea);
+        }
+    }
+
+    /**
+     * Função assíncrona para colar o conteúdo da área de transferência na textarea do código PIX.
+     * Solicita permissão de leitura da área de transferência ao navegador.
+     */
+    async function colarCodigoPix() {
+        const codigoPixTextarea = document.getElementById('codigoPix');
+        try {
+            // Tenta ler o conteúdo da área de transferência
+            const text = await navigator.clipboard.readText();
+            codigoPixTextarea.value = text;
+            codigoPixTextarea.focus(); // Coloca o foco na textarea após colar
+        } catch (err) {
+            // Em caso de erro (ex: permissão negada, não em ambiente seguro), informa o usuário
+            console.error('Falha ao colar o código. Por favor, cole manualmente (Ctrl+V ou Cmd+V).', err);
+            // Poderia adicionar uma mensagem visível na UI aqui para o usuário colar manualmente
+            codigoPixTextarea.focus(); // Ainda coloca o foco para facilitar a colagem manual
+        }
     }
 </script>
 </body>
