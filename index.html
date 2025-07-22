@@ -167,7 +167,7 @@
         <img src="logo.png" alt="Tamandaré Tintas" class="logo">
         <h1>Gerador de link PIX Tamandaré Tintas</h1>
         
-        <textarea id="codigoPix" placeholder="Cole o código PIX aqui..."></textarea>
+        <textarea id="codigoPix" placeholder="Cole o código PIX aqui ou use o botão Colar..."></textarea>
         <div id="errorMessage"></div> <!-- Nova div para mensagens de erro -->
 
         <div class="button-row">
@@ -197,7 +197,7 @@
         errorMessageDiv.textContent = message;
         errorMessageDiv.style.display = 'block'; // Mostra a div de erro
         setTimeout(() => {
-            errorMessageDiv.style.display = 'none'; // Esconde a div de erro após 3 segundos
+            errorMessageDiv.style.display = 'none'; // Esconde a div de erro após 4 segundos
             errorMessageDiv.textContent = ''; // Limpa o texto
         }, 3000);
     }
@@ -222,7 +222,7 @@
 
         // Nova verificação: impede a geração se o código PIX começar com "http://" ou "https://"
         if (valorCodigo.startsWith("http://") || valorCodigo.startsWith("https://")) {
-            showErrorMessage("Por favor, cole apenas o código PIX, não o link completo.");
+            showErrorMessage("Verifique o código colado, ele não deve começar com http ou https.");
             console.error("Código PIX inválido: Contém prefixo de URL.");
             return;
         }
