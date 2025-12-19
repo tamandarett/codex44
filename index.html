@@ -52,7 +52,6 @@
             display: flex;
             align-items: flex-start;
             margin-bottom: 15px;
-            /* Removed gap as button is moved */
         }
 
         textarea {
@@ -62,11 +61,11 @@
             border: 2px solid #e5e7eb;
             border-radius: 6px;
             font-size: 16px;
-            margin-bottom: 15px; /* Added margin-bottom back for spacing below textarea */
+            margin-bottom: 15px;
             resize: none;
             transition: border-color 0.3s;
             box-sizing: border-box;
-            width: 100%; /* Ensure textarea takes full width */
+            width: 100%;
         }
         
         textarea:focus {
@@ -74,15 +73,15 @@
             border-color: var(--cor-primaria);
         }
         
-        .button-row { /* New class for the row of buttons */
+        .button-row {
             display: flex;
-            gap: 10px; /* Space between buttons */
+            gap: 10px;
             width: 100%;
-            margin-bottom: 10px; /* Space below the button row */
+            margin-bottom: 10px;
         }
 
-        .botao-gerar, .botao-colar { /* Combined styles for both main action buttons */
-            flex: 1; /* Allows both buttons to grow and take equal space */
+        .botao-gerar, .botao-colar {
+            flex: 1;
             color: white;
             border: none;
             padding: 12px 24px;
@@ -91,8 +90,8 @@
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.3s, opacity 0.3s;
-            white-space: nowrap; /* Prevents text from wrapping */
-            display: flex; /* Use flex to center text vertically */
+            white-space: nowrap;
+            display: flex;
             align-items: center;
             justify-content: center;
         }
@@ -105,6 +104,11 @@
             background-color: var(--cor-secundaria);
         }
         
+        .botao-gerar:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+        
         .botao-colar {
             background-color: var(--cor-botao-colar);
         }
@@ -113,13 +117,13 @@
             opacity: 0.9;
         }
 
-        .botao-copiar { /* Specific style for the copy message button */
+        .botao-copiar {
             background-color: var(--cor-botao-copiar);
             color: white;
             border: none;
             padding: 12px 24px;
             border-radius: 6px;
-            font-size: 16px; /* Alterado de 14px para 16px */
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: opacity 0.3s;
@@ -142,14 +146,14 @@
             white-space: pre-line;
         }
 
-        #errorMessage { /* Novo estilo para a mensagem de erro */
-            color: #ef4444; /* Vermelho vibrante para erro */
-            background-color: #fee2e2; /* Fundo claro para o erro */
+        #errorMessage {
+            color: #ef4444;
+            background-color: #fee2e2;
             border: 1px solid #fca5a5;
             padding: 10px;
             border-radius: 6px;
             margin-top: 10px;
-            display: none; /* Escondido por padrão */
+            display: none;
             font-weight: 500;
         }
         
@@ -168,7 +172,7 @@
         <h1>Gerador de link PIX Tamandaré Tintas</h1>
         
         <textarea id="codigoPix" placeholder="Cole o código PIX aqui ou use o botão Colar..."></textarea>
-        <div id="errorMessage"></div> <!-- Nova div para mensagens de erro -->
+        <div id="errorMessage"></div>
 
         <div class="button-row">
             <button class="botao-colar" onclick="colarCodigoPix(this)">Colar</button>
@@ -190,112 +194,22 @@
 <script>
     /**
      * Exibe uma mensagem de erro na UI por um período de tempo.
-     * @param {string} message - A mensagem de erro a ser exibida.
      */
     function showErrorMessage(message) {
         const errorMessageDiv = document.getElementById('errorMessage');
         errorMessageDiv.textContent = message;
-        errorMessageDiv.style.display = 'block'; // Mostra a div de erro
+        errorMessageDiv.style.display = 'block';
         setTimeout(() => {
-            errorMessageDiv.style.display = 'none'; // Esconde a div de erro após 4 segundos
-            errorMessageDiv.textContent = ''; // Limpa o texto
-        }, 3000);
+            errorMessageDiv.style.display = 'none';
+            errorMessageDiv.textContent = '';
+        }, 4000);
     }
 
     /**
-     * Função assíncrona para encurtar o código PIX e gerar a mensagem para o cliente.
-     * Realiza validações do código PIX e faz uma requisição para um serviço de encurtamento de URL.
-     */
-    async function encurtar() {
-        const codigoPix = document.getElementById('codigoPix');
-        const valorCodigo = codigoPix.value.trim();
-        
-        // Esconde o resultado e o botão de copiar ao iniciar uma nova tentativa
-        document.getElementById('resultado').style.display = 'none';
-        document.getElementById('botaoCopiar').style.display = 'none';
-
-        if (!valorCodigo) {
-            showErrorMessage("Por favor, cole o código PIX antes de gerar o link!");
-            console.error("Por favor, cole o código PIX antes de gerar o link!");
-            return;
-        }
-
-        // Nova verificação: impede a geração se o código PIX começar com "http://" ou "https://"
-        if (valorCodigo.startsWith("http://") || valorCodigo.startsWith("https://")) {
-            showErrorMessage("Verifique o código colado, ele não deve começar com http ou https.");
-            console.error("Código PIX inválido: Contém prefixo de URL.");
-            return;
-        }
-
-        // Nova verificação: o código PIX deve começar com "000201"
-        if (!valorCodigo.startsWith("000201")) {
-            showErrorMessage("Código PIX inválido! Deve começar com '000201'.");
-            console.error("Código PIX inválido: Não começa com '000201'.");
-            return;
-        }
-
-        // Verificações de beneficiário permitidas (com ou sem & comercial)
-        const sequenciasValidas = [
-            "TAMANDARETINTASDEINDA".substring(0, 10),
-            "MARQUIVENTURINICOMERCIO".substring(0, 10),
-            "MARQUI&VENTURINICOMERCIO".substring(0, 10)
-        ];
-
-        const beneficiarioValido = sequenciasValidas.some(seq => valorCodigo.includes(seq));
-        
-        if (!beneficiarioValido) {
-            showErrorMessage("Código PIX inválido! Beneficiário desconhecido.");
-            console.error("Código PIX inválido! Beneficiário desconhecido");
-            return;
-        }
-
-        if (!valorCodigo.includes("52040000")) {
-            showErrorMessage("Categoria PIX inválida!");
-            console.error("Categoria PIX inválida!");
-            return;
-        }
-
-        const urlCompleta = `https://tamandarett.github.io/pix-pagina/?codigo=${encodeURIComponent(valorCodigo)}&t=${Date.now()}`;
-        const resultadoDiv = document.getElementById('resultado');
-        const botaoCopiar = document.getElementById('botaoCopiar');
-        
-        try {
-            // Requisição para o serviço de encurtamento de URL
-            const response = await fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(urlCompleta)}`);
-            const data = await response.json();
-            
-            const mensagem = `Olá!
-
-Segue abaixo o link para copiar a chave PIX para pagamento à Tamandaré Tintas:
-👉 ${data.shorturl}
-
-Basta clicar no link acima — você será redirecionado para uma página onde poderá copiar a chave PIX ou escanear o QR Code.
-
-A chave tem validade de 12 horas, então, se possível, finalize o pagamento dentro desse período.
-
-Qualquer dúvida, estou à disposição!
-
-Obrigado(a)!`;
-            
-            document.getElementById('mensagemCliente').textContent = mensagem;
-            resultadoDiv.style.display = 'block';
-            botaoCopiar.style.display = 'block';
-            codigoPix.value = ''; // Limpa a textarea após gerar o link
-            codigoPix.focus(); // Coloca o foco na textarea
-            
-        } catch (error) {
-            showErrorMessage("Erro ao gerar o link. Por favor, tente novamente.");
-            console.error("Erro ao gerar o link. Por favor, tente novamente.", error);
-        }
-    }
-
-    /**
-     * Função para copiar a mensagem gerada para a área de transferência.
-     * Exibe um feedback visual temporário no botão.
+     * Função para copiar a mensagem gerada.
      */
     function copiarMensagem() {
         const mensagem = document.getElementById("mensagemCliente").textContent;
-        // Usa document.execCommand('copy') para compatibilidade em iframes
         const tempTextArea = document.createElement('textarea');
         tempTextArea.value = mensagem;
         document.body.appendChild(tempTextArea);
@@ -306,37 +220,110 @@ Obrigado(a)!`;
             btn.textContent = "Copiado!";
             setTimeout(() => { btn.textContent = "Copiar Mensagem"; }, 2000);
         } catch (err) {
-            console.error('Erro ao copiar a mensagem:', err);
-            // Poderia adicionar uma mensagem visível na UI aqui
+            console.error('Erro ao copiar:', err);
         } finally {
             document.body.removeChild(tempTextArea);
         }
     }
 
     /**
-     * Função assíncrona para colar o conteúdo da área de transferência na textarea do código PIX.
-     * Solicita permissão de leitura da área de transferência ao navegador.
-     * @param {HTMLElement} btn - O botão que acionou a função.
+     * Função para colar o código PIX.
      */
     async function colarCodigoPix(btn) {
         const codigoPixTextarea = document.getElementById('codigoPix');
-        const originalText = btn.textContent; // Armazena o texto original do botão
-
-        btn.textContent = "Colando..."; // Feedback imediato
-
+        const originalText = btn.textContent;
+        btn.textContent = "Colando...";
         try {
-            // Tenta ler o conteúdo da área de transferência
             const text = await navigator.clipboard.readText();
             codigoPixTextarea.value = text;
-            codigoPixTextarea.focus(); // Coloca o foco na textarea após colar
-            btn.textContent = "Colado!"; // Feedback de sucesso
-            setTimeout(() => { btn.textContent = originalText; }, 2000); // Retorna ao texto original
+            codigoPixTextarea.focus();
+            btn.textContent = "Colado!";
+            setTimeout(() => { btn.textContent = originalText; }, 2000);
         } catch (err) {
-            // Em caso de erro (ex: permissão negada, não em ambiente seguro), informa o usuário
-            console.error('Falha ao colar o código automaticamente. Por favor, cole manualmente (Ctrl+V ou Cmd+V) na caixa de texto.', err);
-            btn.textContent = "Falha ao Colar"; // Feedback de falha
-            setTimeout(() => { btn.textContent = originalText; }, 2000); // Retorna ao texto original
-            codigoPixTextarea.focus(); // Ainda coloca o foco para facilitar a colagem manual
+            console.error('Falha ao colar:', err);
+            btn.textContent = "Falha (Use Ctrl+V)";
+            setTimeout(() => { btn.textContent = originalText; }, 2000);
+            codigoPixTextarea.focus();
+        }
+    }
+
+    /**
+     * Função Principal: Gera o Link usando TinyURL (Substituindo is.gd)
+     */
+    async function encurtar() {
+        const codigoPix = document.getElementById('codigoPix');
+        const valorCodigo = codigoPix.value.trim();
+        
+        // Reset da UI
+        document.getElementById('resultado').style.display = 'none';
+        document.getElementById('botaoCopiar').style.display = 'none';
+
+        // Validações
+        if (!valorCodigo) {
+            showErrorMessage("Por favor, cole o código PIX antes de gerar o link!");
+            return;
+        }
+        if (valorCodigo.startsWith("http://") || valorCodigo.startsWith("https://")) {
+            showErrorMessage("Erro: Você colou um link. Cole o código PIX 'Copia e Cola' (começa com 000201).");
+            return;
+        }
+        if (!valorCodigo.startsWith("000201")) {
+            showErrorMessage("Código PIX inválido! O código deve começar com '000201'.");
+            return;
+        }
+
+        // Validação de segurança do beneficiário (Tamandaré Tintas)
+        const sequenciasValidas = [
+            "TAMANDARETINTASDEINDA".substring(0, 10),
+            "MARQUIVENTURINICOMERCIO".substring(0, 10),
+            "MARQUI&VENTURINICOMERCIO".substring(0, 10)
+        ];
+        const beneficiarioValido = sequenciasValidas.some(seq => valorCodigo.includes(seq));
+        
+        if (!beneficiarioValido) {
+            showErrorMessage("Atenção: Esse PIX não parece ser da Tamandaré Tintas.");
+            return;
+        }
+
+        // Feedback de carregamento no botão e bloqueio
+        const btnGerar = document.querySelector('.botao-gerar');
+        const textoOriginalBtn = btnGerar.textContent;
+        btnGerar.textContent = "Gerando...";
+        btnGerar.disabled = true;
+
+        // Monta a URL da sua página de QR Code
+        const urlCompleta = `https://tamandarett.github.io/pix-pagina/?codigo=${encodeURIComponent(valorCodigo)}&t=${Date.now()}`;
+
+        try {
+            // REQUISIÇÃO ATUALIZADA: Usando TinyURL (Retorna texto puro)
+            const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(urlCompleta)}`);
+            
+            if (!response.ok) throw new Error('Falha na resposta da API');
+            
+            const shortUrl = await response.text(); 
+            
+            const mensagem = `Olá!
+
+Segue abaixo o link para copiar a chave PIX para pagamento à Tamandaré Tintas:
+👉 ${shortUrl}
+
+Basta clicar no link acima — você será redirecionado para uma página onde poderá copiar a chave PIX ou escanear o QR Code.
+
+Obrigado(a)!`;
+            
+            document.getElementById('mensagemCliente').textContent = mensagem;
+            document.getElementById('resultado').style.display = 'block';
+            document.getElementById('botaoCopiar').style.display = 'block';
+            codigoPix.value = ''; 
+            codigoPix.focus();
+            
+        } catch (error) {
+            showErrorMessage("Erro ao gerar link curto. Tente novamente.");
+            console.error("Erro API:", error);
+        } finally {
+            // Restaura o botão mesmo se der erro
+            btnGerar.textContent = textoOriginalBtn;
+            btnGerar.disabled = false;
         }
     }
 </script>
