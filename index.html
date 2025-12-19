@@ -110,7 +110,7 @@
             border-radius: 6px;
             text-align: left;
             white-space: pre-line;
-            word-break: break-all; /* Essencial para o link não estourar a tela */
+            word-break: break-all;
         }
 
         #errorMessage {
@@ -171,12 +171,10 @@
     function copiarMensagem() {
         const mensagem = document.getElementById("mensagemCliente").innerText;
         
-        // Tentativa moderna e robusta de copiar
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(mensagem).then(() => {
                 feedbackCopiar();
             }).catch(err => {
-                console.error('Erro clipboard:', err);
                 fallbackCopiar(mensagem);
             });
         } else {
@@ -199,7 +197,7 @@
             document.execCommand('copy');
             feedbackCopiar();
         } catch (err) {
-            alert("Não foi possível copiar automaticamente. Por favor, selecione o texto e copie manualmente.");
+            alert("Copie manualmente.");
         } finally {
             document.body.removeChild(tempTextArea);
         }
@@ -215,14 +213,14 @@
             btn.textContent = "Colado!";
             setTimeout(() => { btn.textContent = originalText; }, 2000);
         } catch (err) {
-            btn.textContent = "Erro (Use Ctrl+V)";
+            btn.textContent = "Use Ctrl+V";
             setTimeout(() => { btn.textContent = originalText; }, 2000);
         }
     }
 
     function gerarLink() {
         const codigoPix = document.getElementById('codigoPix');
-        const valorCodigo = codigoPix.value.trim();
+        let valorCodigo = codigoPix.value.trim();
         
         document.getElementById('resultado').style.display = 'none';
         document.getElementById('botaoCopiar').style.display = 'none';
@@ -231,10 +229,10 @@
             showErrorMessage("Por favor, cole o código PIX antes de gerar o link!");
             return;
         }
-        // Remove espaços acidentais que podem quebrar o link
-        const codigoLimpo = valorCodigo.replace(/\s/g, '');
 
-        if (!codigoLimpo.startsWith("000201")) {
+        valorCodigo = valorCodigo.replace(/\s/g, '');
+
+        if (!valorCodigo.startsWith("000201")) {
             showErrorMessage("Código PIX inválido! O código deve começar com '000201'.");
             return;
         }
@@ -245,21 +243,26 @@
             "MARQUI&VENTURINICOMERCIO".substring(0, 10)
         ];
         
-        // Validação relaxada para garantir que funcione mesmo com pequenas variações
-        if (!sequenciasValidas.some(seq => codigoLimpo.includes(seq))) {
+        if (!sequenciasValidas.some(seq => valorCodigo.includes(seq))) {
             showErrorMessage("Atenção: Esse PIX não parece ser da Tamandaré Tintas.");
             return;
         }
 
         // Gera Link Longo (Seguro)
-        const urlCompleta = `https://tamandarett.github.io/pix-pagina/?codigo=${encodeURIComponent(codigoLimpo)}&t=${Date.now()}`;
+        const urlCompleta = `https://tamandarett.github.io/pix-pagina/?codigo=${encodeURIComponent(valorCodigo)}&t=${Date.now()}`;
         
+        // MENSAGEM RESTAURADA AO FORMATO ORIGINAL
         const mensagem = `Olá!
 
-Segue abaixo o link seguro para copiar a chave PIX da Tamandaré Tintas:
+Segue abaixo o link para copiar a chave PIX para pagamento à Tamandaré Tintas:
+
 👉 ${urlCompleta}
 
-Ao clicar, você poderá conferir os dados e copiar o código para pagamento.
+Basta clicar no link acima — você será redirecionado para uma página onde poderá copiar a chave PIX ou escanear o QR Code.
+
+A chave tem validade de 12 horas, então, se possível, finalize o pagamento dentro desse período.
+
+Qualquer dúvida, estou à disposição!
 
 Obrigado(a)!`;
         
