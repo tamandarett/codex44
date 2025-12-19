@@ -165,7 +165,7 @@
         errorMessageDiv.style.display = 'block';
         setTimeout(() => {
             errorMessageDiv.style.display = 'none';
-        }, 4000);
+        }, 5000); // Aumentei um pouco o tempo de leitura do erro
     }
 
     function copiarMensagem() {
@@ -222,21 +222,38 @@
         const codigoPix = document.getElementById('codigoPix');
         let valorCodigo = codigoPix.value.trim();
         
+        // Reset da tela
         document.getElementById('resultado').style.display = 'none';
         document.getElementById('botaoCopiar').style.display = 'none';
 
+        // 1. Validação Básica: Está vazio?
         if (!valorCodigo) {
             showErrorMessage("Por favor, cole o código PIX antes de gerar o link!");
             return;
         }
 
+        // 2. Validação Anti-Link: O usuário colou um link em vez do código?
+        if (valorCodigo.startsWith("http://") || valorCodigo.startsWith("https://")) {
+            showErrorMessage("Erro: Você colou um link. Cole apenas o código PIX 'Copia e Cola' (começa com 000201).");
+            return;
+        }
+
+        // Limpeza de espaços (importante)
         valorCodigo = valorCodigo.replace(/\s/g, '');
 
+        // 3. Validação Padrão PIX: Começa com 000201?
         if (!valorCodigo.startsWith("000201")) {
             showErrorMessage("Código PIX inválido! O código deve começar com '000201'.");
             return;
         }
 
+        // 4. Validação Rigorosa: É Bradesco? (Igual à página de destino)
+        if (!valorCodigo.includes("qrpix.bradesco.com.br")) {
+            showErrorMessage("Segurança: Apenas códigos PIX do Bradesco (Tamandaré Tintas) são aceitos.");
+            return;
+        }
+
+        // 5. Validação de Beneficiário: É Tamandaré ou Marqui?
         const sequenciasValidas = [
             "TAMANDARETINTASDEINDA".substring(0, 10),
             "MARQUIVENTURINICOMERCIO".substring(0, 10),
@@ -248,10 +265,10 @@
             return;
         }
 
-        // Gera Link Longo (Seguro)
+        // Tudo certo! Gera o Link
         const urlCompleta = `https://tamandarett.github.io/pix-pagina/?codigo=${encodeURIComponent(valorCodigo)}&t=${Date.now()}`;
         
-        // MENSAGEM RESTAURADA AO FORMATO ORIGINAL
+        // MENSAGEM NO FORMATO ORIGINAL SOLICITADO
         const mensagem = `Olá!
 
 Segue abaixo o link para copiar a chave PIX para pagamento à Tamandaré Tintas:
