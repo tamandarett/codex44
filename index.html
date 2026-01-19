@@ -267,16 +267,20 @@
         // Gera o Link
         const urlCompleta = `https://tamandarett.github.io/pix-pagina/?codigo=${encodeURIComponent(valorCodigo)}&t=${Date.now()}`;
         
-// Mensagem Padrão
-        const mensagem = `Olá! Segue os dados para pagamento seguro à Tamandaré Tintas.
+        // Mensagem Padrão
+        const mensagem = `Olá!
 
-*Clique na imagem acima 👆 para copiar o código Pix ou ver o QR Code.*
+Segue abaixo o link para copiar a chave PIX para pagamento à Tamandaré Tintas:
 
-⏳ _Importante: Realize o pagamento em até 12 horas._
+👉 ${urlCompleta}
+
+Basta clicar no link acima — você será redirecionado para uma página onde poderá copiar a chave PIX ou escanear o QR Code.
+
+A chave tem validade de 12 horas, então, se possível, finalize o pagamento dentro desse período.
 
 Qualquer dúvida, estou à disposição!
 
-${urlCompleta}`;
+Obrigado(a)!`;
         
         document.getElementById('mensagemCliente').textContent = mensagem;
         document.getElementById('resultado').style.display = 'block';
