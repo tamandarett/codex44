@@ -6,14 +6,13 @@
     <title>Gerador de link PIX - Tamandaré Tintas</title>
 
     <link rel="shortcut icon" type="image/png" href="favicon.png">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --cor-primaria: #D32F2F; /* Vermelho Tamandaré */
+            --cor-primaria: #D32F2F; 
             --cor-secundaria: #B71C1C;
             --cor-texto: #2D3748;
             --fundo: #F4F7F6;
@@ -127,7 +126,7 @@
         }
 
         .botao-copiar {
-            background-color: var(--cor-texto); /* Cinza escuro para contraste */
+            background-color: var(--cor-texto);
             color: white;
             width: 100%;
             margin: 15px auto 0 auto;
@@ -162,7 +161,6 @@
             font-size: 15px;
         }
 
-        /* Caixa de erro modernizada */
         #errorMessage {
             color: #C53030;
             background-color: #FFF5F5;
@@ -205,7 +203,7 @@
             <div id="mensagemCliente"></div>
         </div>
         
-        <button id="botaoCopiar" class="botao-copiar" onclick="copiarMensagem()" style="display: none;">Copiar Mensagem</button>
+        <button id="botaoCopiar" class="botao-copiar" onclick="copiarImagemETexto()" style="display: none;">Copiar Banner e Mensagem</button>
     </div>
     
     <footer>
@@ -222,42 +220,66 @@
         }, 5000);
     }
 
-    function copiarMensagem() {
+    // NOVA FUNÇÃO: Copia Imagem + Texto simultaneamente
+    async function copiarImagemETexto() {
         const mensagem = document.getElementById("mensagemCliente").innerText;
+        const btn = document.getElementById('botaoCopiar');
         
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(mensagem).then(() => {
-                feedbackCopiar();
-            }).catch(err => {
-                fallbackCopiar(mensagem);
+        const originalText = btn.textContent;
+        btn.textContent = "Baixando banner...";
+        btn.disabled = true;
+
+        try {
+            // 1. Faz o download do banner no momento do clique
+            const URL_IMAGEM = 'https://tamandarett.github.io/pix-pagina/bannerpix.png';
+            const response = await fetch(URL_IMAGEM);
+            
+            if (!response.ok) throw new Error("Falha ao puxar a imagem");
+            const imageBlob = await response.blob();
+            
+            // 2. Transforma o texto em arquivo de texto
+            const textBlob = new Blob([mensagem], { type: 'text/plain' });
+            
+            // 3. Empacota tudo (ClipboardItem)
+            const item = new ClipboardItem({
+                'text/plain': textBlob,
+                'image/png': imageBlob
             });
-        } else {
-            fallbackCopiar(mensagem);
+            
+            // 4. Joga no CTRL+V do sistema
+            await navigator.clipboard.write([item]);
+            feedbackCopiar();
+
+        } catch (error) {
+            console.warn("Navegador não aceitou a imagem, copiando apenas texto...", error);
+            // Fallback: se o navegador do PC for muito antigo ou travar, salva pelo menos o texto
+            fallbackCopiarTexto(mensagem);
+        } finally {
+            btn.disabled = false;
         }
     }
 
     function feedbackCopiar() {
         const btn = document.getElementById('botaoCopiar');
-        btn.textContent = "Copiado com Sucesso!";
-        btn.style.backgroundColor = "#2F855A"; /* Fica Verde no sucesso */
+        btn.textContent = "Banner + Texto Copiados!";
+        btn.style.backgroundColor = "#2F855A"; 
         setTimeout(() => { 
             btn.textContent = "Copiar Mensagem"; 
-            btn.style.backgroundColor = ""; /* Volta à cor original */
-        }, 2000);
+            btn.style.backgroundColor = ""; 
+        }, 3000);
     }
 
-    function fallbackCopiar(texto) {
-        const tempTextArea = document.createElement('textarea');
-        tempTextArea.value = texto;
-        document.body.appendChild(tempTextArea);
-        tempTextArea.select();
-        try {
-            document.execCommand('copy');
-            feedbackCopiar();
-        } catch (err) {
-            alert("Copie manualmente.");
-        } finally {
-            document.body.removeChild(tempTextArea);
+    function fallbackCopiarTexto(texto) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(texto).then(() => {
+                const btn = document.getElementById('botaoCopiar');
+                btn.textContent = "Apenas Texto Copiado!";
+                btn.style.backgroundColor = "#D69E2E"; // Amarelo para indicar cópia parcial
+                setTimeout(() => { 
+                    btn.textContent = "Copiar Banner e Mensagem"; 
+                    btn.style.backgroundColor = ""; 
+                }, 3000);
+            });
         }
     }
 
@@ -280,7 +302,6 @@
         const codigoPix = document.getElementById('codigoPix');
         let valorCodigo = codigoPix.value; 
         
-        // Reset da tela
         document.getElementById('resultado').style.display = 'none';
         document.getElementById('botaoCopiar').style.display = 'none';
 
@@ -289,28 +310,23 @@
             return;
         }
 
-        // LIMPEZA SEGURA: Remove apenas quebras de linha (Enter), mas MANTÉM espaços
         valorCodigo = valorCodigo.replace(/[\r\n]+/g, '').trim();
 
-        // 2. Validação Anti-Link
         if (valorCodigo.startsWith("http://") || valorCodigo.startsWith("https://")) {
             showErrorMessage("Erro: Você colou um link. Cole apenas o código PIX 'Copia e Cola' (começa com 000201).");
             return;
         }
 
-        // 3. Validação Padrão PIX
         if (!valorCodigo.startsWith("000201")) {
             showErrorMessage("Código PIX inválido! O código deve começar com '000201'.");
             return;
         }
 
-        // 4. Validação Rigorosa: Bradesco
         if (!valorCodigo.includes("qrpix.bradesco.com.br")) {
             showErrorMessage("Segurança: Apenas códigos PIX do Bradesco (Tamandaré Tintas) são aceitos.");
             return;
         }
 
-        // 5. Validação de Beneficiário
         const sequenciasValidas = [
             "TAMANDARETINTASDEINDA".substring(0, 10),
             "MARQUIVENTURINICOMERCIO".substring(0, 10),
@@ -322,10 +338,8 @@
             return;
         }
 
-        // Gera o Link
         const urlCompleta = `https://tamandarett.github.io/pix-pagina/?codigo=${encodeURIComponent(valorCodigo)}&t=${Date.now()}`;
         
-        // Mensagem Padrão
         const mensagem = `Olá!
 
 Segue abaixo o link para copiar a chave PIX para pagamento à Tamandaré Tintas:
