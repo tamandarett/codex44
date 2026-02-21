@@ -6,6 +6,7 @@
     <title>Gerador de link PIX - Tamandaré Tintas</title>
 
     <link rel="shortcut icon" type="image/png" href="favicon.png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -203,7 +204,7 @@
             <div id="mensagemCliente"></div>
         </div>
         
-        <button id="botaoCopiar" class="botao-copiar" onclick="copiarImagemETexto()" style="display: none;">Copiar Banner e Mensagem</button>
+        <button id="botaoCopiar" class="botao-copiar" onclick="copiarMensagem()" style="display: none;">Copiar Mensagem</button>
     </div>
     
     <footer>
@@ -220,66 +221,42 @@
         }, 5000);
     }
 
-    // NOVA FUNÇÃO: Copia Imagem + Texto simultaneamente
-    async function copiarImagemETexto() {
+    function copiarMensagem() {
         const mensagem = document.getElementById("mensagemCliente").innerText;
-        const btn = document.getElementById('botaoCopiar');
         
-        const originalText = btn.textContent;
-        btn.textContent = "Baixando banner...";
-        btn.disabled = true;
-
-        try {
-            // 1. Faz o download do banner no momento do clique
-            const URL_IMAGEM = 'https://tamandarett.github.io/pix-pagina/bannerpix.png';
-            const response = await fetch(URL_IMAGEM);
-            
-            if (!response.ok) throw new Error("Falha ao puxar a imagem");
-            const imageBlob = await response.blob();
-            
-            // 2. Transforma o texto em arquivo de texto
-            const textBlob = new Blob([mensagem], { type: 'text/plain' });
-            
-            // 3. Empacota tudo (ClipboardItem)
-            const item = new ClipboardItem({
-                'text/plain': textBlob,
-                'image/png': imageBlob
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(mensagem).then(() => {
+                feedbackCopiar();
+            }).catch(err => {
+                fallbackCopiar(mensagem);
             });
-            
-            // 4. Joga no CTRL+V do sistema
-            await navigator.clipboard.write([item]);
-            feedbackCopiar();
-
-        } catch (error) {
-            console.warn("Navegador não aceitou a imagem, copiando apenas texto...", error);
-            // Fallback: se o navegador do PC for muito antigo ou travar, salva pelo menos o texto
-            fallbackCopiarTexto(mensagem);
-        } finally {
-            btn.disabled = false;
+        } else {
+            fallbackCopiar(mensagem);
         }
     }
 
     function feedbackCopiar() {
         const btn = document.getElementById('botaoCopiar');
-        btn.textContent = "Banner + Texto Copiados!";
+        btn.textContent = "Mensagem Copiada!";
         btn.style.backgroundColor = "#2F855A"; 
         setTimeout(() => { 
             btn.textContent = "Copiar Mensagem"; 
             btn.style.backgroundColor = ""; 
-        }, 3000);
+        }, 2000);
     }
 
-    function fallbackCopiarTexto(texto) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(texto).then(() => {
-                const btn = document.getElementById('botaoCopiar');
-                btn.textContent = "Apenas Texto Copiado!";
-                btn.style.backgroundColor = "#D69E2E"; // Amarelo para indicar cópia parcial
-                setTimeout(() => { 
-                    btn.textContent = "Copiar Banner e Mensagem"; 
-                    btn.style.backgroundColor = ""; 
-                }, 3000);
-            });
+    function fallbackCopiar(texto) {
+        const tempTextArea = document.createElement('textarea');
+        tempTextArea.value = texto;
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        try {
+            document.execCommand('copy');
+            feedbackCopiar();
+        } catch (err) {
+            alert("Copie manualmente.");
+        } finally {
+            document.body.removeChild(tempTextArea);
         }
     }
 
@@ -338,6 +315,7 @@
             return;
         }
 
+        // Gera o Link (lembre-se de mudar a versão da imagem no outro repositório para ?v=3 se ela não aparecer)
         const urlCompleta = `https://tamandarett.github.io/pix-pagina/?codigo=${encodeURIComponent(valorCodigo)}&t=${Date.now()}`;
         
         const mensagem = `Olá!
