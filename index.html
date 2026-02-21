@@ -3,19 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de link PIX Tamandaré Tintas</title>
+    <title>Gerador de link PIX - Tamandaré Tintas</title>
+
+    <link rel="shortcut icon" type="image/png" href="favicon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --cor-primaria: #2563eb;
-            --cor-secundaria: #1e40af;
-            --fundo: #f9fafb;
-            --cor-botao-copiar: #e63946;
-            --cor-botao-colar: #10b981;
+            --cor-primaria: #D32F2F; /* Vermelho Tamandaré */
+            --cor-secundaria: #B71C1C;
+            --cor-texto: #2D3748;
+            --fundo: #F4F7F6;
+            --border-color: #E2E8F0;
         }
         
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: var(--fundo);
+            color: var(--cor-texto);
             margin: 0;
             padding: 20px;
             display: flex;
@@ -26,136 +34,182 @@
         }
         
         .container {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            width: 90%;
-            max-width: 600px;
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 35px 30px;
+            width: 100%;
+            max-width: 500px;
             margin: 0 auto;
             text-align: center;
         }
         
         .logo {
-            max-width: 200px;
-            max-height: 100px;
-            margin-bottom: 20px;
+            max-width: 180px;
+            margin-bottom: 25px;
         }
         
         h1 {
-            color: var(--cor-primaria);
+            color: var(--cor-texto);
             margin-bottom: 25px;
-            font-size: 1.8rem;
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 0;
         }
         
         textarea {
             width: 100%;
             height: 120px;
-            padding: 12px;
-            border: 2px solid #e5e7eb;
-            border-radius: 6px;
-            font-size: 16px;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
             margin-bottom: 15px;
             resize: none;
             box-sizing: border-box;
+            background-color: #FFFFFF;
+            color: var(--cor-texto);
+            transition: all 0.2s;
         }
         
         textarea:focus {
             outline: none;
             border-color: var(--cor-primaria);
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.15);
         }
         
         .button-row {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             width: 100%;
             margin-bottom: 10px;
         }
 
-        .botao-gerar, .botao-colar {
-            flex: 1;
-            color: white;
+        button {
+            font-family: 'Inter', sans-serif;
             border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-size: 16px;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: opacity 0.3s;
+            transition: all 0.2s ease;
+        }
+
+        button:active {
+            transform: translateY(1px);
         }
         
-        .botao-gerar { background-color: var(--cor-primaria); }
-        .botao-gerar:hover { background-color: var(--cor-secundaria); }
-        .botao-colar { background-color: var(--cor-botao-colar); }
-        .botao-colar:hover { opacity: 0.9; }
+        .botao-colar {
+            flex: 1;
+            background-color: #EDF2F7;
+            color: #4A5568;
+            border: 1px solid var(--border-color);
+        }
+        
+        .botao-colar:hover {
+            background-color: #E2E8F0;
+            color: var(--cor-texto);
+        }
+
+        .botao-gerar {
+            flex: 2;
+            background-color: var(--cor-primaria);
+            color: white;
+            box-shadow: 0 4px 6px rgba(211, 47, 47, 0.2);
+        }
+        
+        .botao-gerar:hover {
+            background-color: var(--cor-secundaria);
+            transform: translateY(-2px);
+        }
 
         .botao-copiar {
-            background-color: var(--cor-botao-copiar);
+            background-color: var(--cor-texto); /* Cinza escuro para contraste */
             color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
             width: 100%;
-            margin: 10px auto;
+            margin: 15px auto 0 auto;
             display: block;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .botao-copiar:hover {
+            background-color: #1A202C;
+            transform: translateY(-2px);
         }
         
         #resultado {
-            margin-top: 15px;
-            padding: 15px;
-            background-color: #f3f4f6;
-            border-radius: 6px;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #F8FAFC;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             text-align: left;
             white-space: pre-line;
             word-break: break-all;
+            font-size: 14px;
+            color: #4A5568;
         }
 
+        #resultado p {
+            margin-top: 0;
+        }
+
+        #resultado p strong {
+            color: var(--cor-texto);
+            font-size: 15px;
+        }
+
+        /* Caixa de erro modernizada */
         #errorMessage {
-            color: #ef4444;
-            background-color: #fee2e2;
-            border: 1px solid #fca5a5;
-            padding: 10px;
-            border-radius: 6px;
-            margin-top: 10px;
+            color: #C53030;
+            background-color: #FFF5F5;
+            border: 1px solid #FED7D7;
+            padding: 14px;
+            border-radius: 8px;
+            margin-top: 0;
+            margin-bottom: 15px;
             display: none;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: left;
         }
         
         footer {
             margin-top: auto;
-            padding: 15px;
-            color: #6b7280;
-            font-size: 14px;
+            padding: 20px 15px;
+            color: #A0AEC0;
+            font-size: 13px;
             width: 100%;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <img src="logo.png" alt="Tamandaré Tintas" class="logo">
-        <h1>Gerador de link PIX Tamandaré Tintas</h1>
+        <img src="logo.png" alt="Tamandaré Tintas" class="logo" onerror="this.style.display='none'">
+        <h1>Gerador de Link PIX</h1>
         
-        <textarea id="codigoPix" placeholder="Cole o código PIX aqui..."></textarea>
         <div id="errorMessage"></div>
+        <textarea id="codigoPix" placeholder="Cole o código PIX 'Copia e Cola' aqui..."></textarea>
 
         <div class="button-row">
             <button class="botao-colar" onclick="colarCodigoPix(this)">Colar</button>
             <button class="botao-gerar" onclick="gerarLink()">Gerar Link</button>
         </div>
         
-        <button id="botaoCopiar" class="botao-copiar" onclick="copiarMensagem()" style="display: none;">Copiar Mensagem</button>
-        
         <div id="resultado" style="display: none;">
-            <p><strong>Mensagem para o cliente:</strong></p>
+            <p><strong>Mensagem pronta para o cliente:</strong></p>
             <div id="mensagemCliente"></div>
         </div>
+        
+        <button id="botaoCopiar" class="botao-copiar" onclick="copiarMensagem()" style="display: none;">Copiar Mensagem</button>
     </div>
     
     <footer>
-        © 2026 Tamandaré Tintas. Todos os direitos reservados.
+        © 2026 Tamandaré Tintas. Operação Segura.
     </footer>
 
 <script>
@@ -184,8 +238,12 @@
 
     function feedbackCopiar() {
         const btn = document.getElementById('botaoCopiar');
-        btn.textContent = "Copiado!";
-        setTimeout(() => { btn.textContent = "Copiar Mensagem"; }, 2000);
+        btn.textContent = "Copiado com Sucesso!";
+        btn.style.backgroundColor = "#2F855A"; /* Fica Verde no sucesso */
+        setTimeout(() => { 
+            btn.textContent = "Copiar Mensagem"; 
+            btn.style.backgroundColor = ""; /* Volta à cor original */
+        }, 2000);
     }
 
     function fallbackCopiar(texto) {
@@ -220,7 +278,7 @@
 
     function gerarLink() {
         const codigoPix = document.getElementById('codigoPix');
-        let valorCodigo = codigoPix.value; // Removido o .trim() aqui para tratar abaixo com mais cuidado
+        let valorCodigo = codigoPix.value; 
         
         // Reset da tela
         document.getElementById('resultado').style.display = 'none';
