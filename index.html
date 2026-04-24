@@ -12,6 +12,7 @@
         :root {
             --cor-primaria: #D32F2F; 
             --cor-secundaria: #B71C1C;
+            --cor-foco: #3182CE;
             --cor-texto: #2D3748;
             --fundo: #F4F7F6;
             --border-color: #E2E8F0;
@@ -45,18 +46,49 @@
         .logo { max-width: 160px; margin-bottom: 20px; }
         h1 { font-size: 18px; font-weight: 700; margin: 0 0 20px 0; }
         
+        .flex-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
         .label-input {
-            display: block;
             text-align: left;
             font-size: 13px;
             font-weight: 600;
-            margin-bottom: 5px;
             color: #4A5568;
+        }
+
+        /* Estilização do Seletor PF/PJ */
+        .seletor-tipo {
+            display: flex;
+            gap: 8px;
+        }
+
+        .seletor-tipo label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #718096;
+            cursor: pointer;
+            padding: 4px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            transition: all 0.2s;
+            background: #F8FAFC;
+        }
+
+        .seletor-tipo input { display: none; }
+
+        .seletor-tipo input:checked + label {
+            background-color: var(--cor-foco);
+            color: white;
+            border-color: var(--cor-foco);
         }
 
         textarea {
             width: 100%;
-            height: 72px; /* Reduzido em 40% (era 120px) */
+            height: 72px;
             padding: 12px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
@@ -143,10 +175,18 @@
         
         <div id="errorMessage"></div>
         
-        <label class="label-input">Código PIX:</label>
+        <label class="label-input" style="display:block; margin-bottom:5px;">Código PIX:</label>
         <textarea id="codigoPix" placeholder="Cole o código PIX aqui..."></textarea>
 
-        <label class="label-input">Pagador:</label>
+        <div class="flex-label">
+            <label class="label-input">Pagador:</label>
+            <div class="seletor-tipo">
+                <input type="radio" id="pf" name="tipo" value="PF" checked>
+                <label for="pf">PF</label>
+                <input type="radio" id="pj" name="tipo" value="PJ">
+                <label for="pj">PJ</label>
+            </div>
+        </div>
         <input type="text" id="nomePagador" placeholder="Opcional">
 
         <div class="button-row">
@@ -189,6 +229,8 @@
     function gerarLink() {
         const codigoInput = document.getElementById('codigoPix');
         const pagadorInput = document.getElementById('nomePagador');
+        const tipoPF = document.getElementById('pf').checked;
+        
         let valorCodigo = codigoInput.value.replace(/[\r\n]+/g, '').trim();
         let nome = pagadorInput.value.trim().toUpperCase();
         
@@ -207,10 +249,14 @@
 
         const urlCompleta = `https://tamandarett.github.io/pix-pagina/?codigo=${encodeURIComponent(valorCodigo)}`;
         
-        // Lógica de saudação personalizada
+        // Lógica de saudação ajustada: vírgula no lugar da exclamação
         let saudacao = "Olá,";
         if (nome !== "") {
-            saudacao = `Olá Srº(ª) *${nome}*,`;
+            if (tipoPF) {
+                saudacao = `Olá Srº(ª) *${nome}*,`;
+            } else {
+                saudacao = `Olá, *${nome}*,`;
+            }
         }
 
         const mensagem = `${saudacao}
@@ -229,7 +275,6 @@ ${urlCompleta}`;
         document.getElementById('resultado').style.display = 'block';
         document.getElementById('botaoCopiar').style.display = 'block';
         
-        // Limpa campos para o próximo uso
         codigoInput.value = '';
         pagadorInput.value = '';
     }
