@@ -35,26 +35,45 @@
             border: 1px solid var(--border-color);
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            padding: 35px 30px;
+            padding: 30px;
             width: 100%;
             max-width: 500px;
             margin: 0 auto;
             text-align: center;
         }
         
-        .logo { max-width: 180px; margin-bottom: 25px; }
-        h1 { font-size: 20px; font-weight: 700; margin: 0 0 25px 0; }
+        .logo { max-width: 160px; margin-bottom: 20px; }
+        h1 { font-size: 18px; font-weight: 700; margin: 0 0 20px 0; }
         
+        .label-input {
+            display: block;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #4A5568;
+        }
+
         textarea {
             width: 100%;
-            height: 120px;
-            padding: 14px;
+            height: 72px; /* Reduzido em 40% (era 120px) */
+            padding: 12px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            font-size: 15px;
+            font-size: 14px;
             margin-bottom: 15px;
             resize: none;
             background-color: #FFFFFF;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
         }
         
         .button-row {
@@ -69,7 +88,7 @@
             border: none;
             padding: 14px 24px;
             border-radius: 8px;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -78,7 +97,6 @@
         .botao-colar { flex: 1; background-color: #EDF2F7; color: #4A5568; border: 1px solid var(--border-color); }
         .botao-gerar { flex: 2; background-color: var(--cor-primaria); color: white; box-shadow: 0 4px 6px rgba(211, 47, 47, 0.2); }
         
-        /* Botão posicionado abaixo dos botões de ação e oculto por padrão */
         .botao-copiar { 
             background-color: var(--cor-texto); 
             color: white; 
@@ -106,16 +124,16 @@
             color: #C53030;
             background-color: #FFF5F5;
             border: 1px solid #FED7D7;
-            padding: 14px;
+            padding: 12px;
             border-radius: 8px;
             margin-bottom: 15px;
             display: none;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
             text-align: left;
         }
         
-        footer { margin-top: auto; padding: 20px; color: #A0AEC0; font-size: 13px; text-align: center; }
+        footer { margin-top: auto; padding: 20px; color: #A0AEC0; font-size: 12px; text-align: center; }
     </style>
 </head>
 <body>
@@ -124,7 +142,12 @@
         <h1>Gerador de Link PIX</h1>
         
         <div id="errorMessage"></div>
+        
+        <label class="label-input">Código PIX:</label>
         <textarea id="codigoPix" placeholder="Cole o código PIX aqui..."></textarea>
+
+        <label class="label-input">Pagador:</label>
+        <input type="text" id="nomePagador" placeholder="Opcional">
 
         <div class="button-row">
             <button class="botao-colar" onclick="colarCodigoPix(this)">Colar</button>
@@ -138,7 +161,7 @@
         </div>
     </div>
     
-    <footer>© 2026 Tamandaré Tintas. Operação Segura.</footer>
+    <footer>© 2026 Tamandaré Tintas.</footer>
 
 <script>
     function showErrorMessage(message) {
@@ -156,9 +179,8 @@
                 return;
             }
             document.getElementById('codigoPix').value = text.trim();
-            const original = btn.textContent;
             btn.textContent = "Colado!";
-            setTimeout(() => { btn.textContent = original; }, 2000);
+            setTimeout(() => { btn.textContent = "Colar"; }, 2000);
         } catch (err) {
             showErrorMessage("Erro ao acessar área de transferência.");
         }
@@ -166,47 +188,39 @@
 
     function gerarLink() {
         const codigoInput = document.getElementById('codigoPix');
+        const pagadorInput = document.getElementById('nomePagador');
         let valorCodigo = codigoInput.value.replace(/[\r\n]+/g, '').trim();
+        let nome = pagadorInput.value.trim().toUpperCase();
         
         document.getElementById('resultado').style.display = 'none';
         document.getElementById('botaoCopiar').style.display = 'none';
 
         if (!valorCodigo) {
-            showErrorMessage("Por favor, cole o código PIX antes de gerar o link!");
+            showErrorMessage("Cole o código PIX antes de gerar o link!");
             return;
         }
 
-        if (!valorCodigo.startsWith("000201")) {
-            showErrorMessage("Código PIX inválido!");
-            return;
-        }
-
-        if (!valorCodigo.includes("qrpix.bradesco.com.br")) {
-            showErrorMessage("Segurança: Apenas códigos PIX do Bradesco são aceitos.");
-            return;
-        }
-
-        const sequenciasValidas = [
-            "TAMANDARETINTASDEINDA".substring(0, 10),
-            "MARQUIVENTURINICOMERCIO".substring(0, 10),
-            "MARQUI&VENTURINICOMERCIO".substring(0, 10)
-        ];
-        
-        if (!sequenciasValidas.some(seq => valorCodigo.includes(seq))) {
-            showErrorMessage("Atenção: Esse PIX não parece ser da Tamandaré Tintas.");
+        if (!valorCodigo.startsWith("000201") || !valorCodigo.includes("qrpix.bradesco.com.br")) {
+            showErrorMessage("Código PIX inválido ou não autorizado.");
             return;
         }
 
         const urlCompleta = `https://tamandarett.github.io/pix-pagina/?codigo=${encodeURIComponent(valorCodigo)}`;
         
-        const mensagem = `Olá!
+        // Lógica de saudação personalizada
+        let saudacao = "Olá!";
+        if (nome !== "") {
+            saudacao = `Olá Srº(ª) *${nome}*!`;
+        }
 
-Segue o link para copiar a chave PIX para pagamento à Tamandaré Tintas, basta clicar na imagem acima ou no link abaixo e você será redirecionado para uma página onde poderá copiar a chave PIX ou escanear o QR Code.
+        const mensagem = `${saudacao}
 
-A chave tem validade de 12 horas, então, se possível, finalize o pagamento dentro desse período.
+Segue o link para pagamento via PIX à Tamandaré Tintas.
 
-Qualquer dúvida, estou à disposição!
+Ao acessar, você poderá copiar a chave PIX ou escanear o QR Code para pagamento.
+A chave possui validade de 12 horas, portanto recomendamos que o pagamento seja realizado dentro desse prazo.
 
+Em caso de dúvidas, fico à disposição.
 Obrigado(a)!
 
 ${urlCompleta}`;
@@ -214,7 +228,10 @@ ${urlCompleta}`;
         document.getElementById('mensagemCliente').innerText = mensagem;
         document.getElementById('resultado').style.display = 'block';
         document.getElementById('botaoCopiar').style.display = 'block';
-        codigoInput.value = ''; 
+        
+        // Limpa campos para o próximo uso
+        codigoInput.value = '';
+        pagadorInput.value = '';
     }
 
     function copiarMensagem() {
