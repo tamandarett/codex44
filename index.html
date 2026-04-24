@@ -6,9 +6,6 @@
     <title>Gerador de link PIX - Tamandaré Tintas</title>
 
     <link rel="shortcut icon" type="image/png" href="favicon.png">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -45,18 +42,8 @@
             text-align: center;
         }
         
-        .logo {
-            max-width: 180px;
-            margin-bottom: 25px;
-        }
-        
-        h1 {
-            color: var(--cor-texto);
-            margin-bottom: 25px;
-            font-size: 20px;
-            font-weight: 700;
-            margin-top: 0;
-        }
+        .logo { max-width: 180px; margin-bottom: 25px; }
+        h1 { font-size: 20px; font-weight: 700; margin: 0 0 25px 0; }
         
         textarea {
             width: 100%;
@@ -65,26 +52,16 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
             font-size: 15px;
-            font-family: 'Inter', sans-serif;
             margin-bottom: 15px;
             resize: none;
-            box-sizing: border-box;
             background-color: #FFFFFF;
-            color: var(--cor-texto);
-            transition: all 0.2s;
-        }
-        
-        textarea:focus {
-            outline: none;
-            border-color: var(--cor-primaria);
-            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.15);
         }
         
         .button-row {
             display: flex;
             gap: 12px;
             width: 100%;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         button {
@@ -98,48 +75,19 @@
             transition: all 0.2s ease;
         }
 
-        button:active {
-            transform: translateY(1px);
-        }
+        .botao-colar { flex: 1; background-color: #EDF2F7; color: #4A5568; border: 1px solid var(--border-color); }
+        .botao-gerar { flex: 2; background-color: var(--cor-primaria); color: white; box-shadow: 0 4px 6px rgba(211, 47, 47, 0.2); }
         
-        .botao-colar {
-            flex: 1;
-            background-color: #EDF2F7;
-            color: #4A5568;
-            border: 1px solid var(--border-color);
-        }
-        
-        .botao-colar:hover {
-            background-color: #E2E8F0;
-            color: var(--cor-texto);
+        /* Botão posicionado abaixo dos botões de ação e oculto por padrão */
+        .botao-copiar { 
+            background-color: var(--cor-texto); 
+            color: white; 
+            width: 100%; 
+            display: none; 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+            margin-top: 5px;
         }
 
-        .botao-gerar {
-            flex: 2;
-            background-color: var(--cor-primaria);
-            color: white;
-            box-shadow: 0 4px 6px rgba(211, 47, 47, 0.2);
-        }
-        
-        .botao-gerar:hover {
-            background-color: var(--cor-secundaria);
-            transform: translateY(-2px);
-        }
-
-        .botao-copiar {
-            background-color: var(--cor-texto);
-            color: white;
-            width: 100%;
-            margin: 15px auto 0 auto;
-            display: block;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .botao-copiar:hover {
-            background-color: #1A202C;
-            transform: translateY(-2px);
-        }
-        
         #resultado {
             margin-top: 20px;
             padding: 20px;
@@ -151,15 +99,7 @@
             word-break: break-all;
             font-size: 14px;
             color: #4A5568;
-        }
-
-        #resultado p {
-            margin-top: 0;
-        }
-
-        #resultado p strong {
-            color: var(--cor-texto);
-            font-size: 15px;
+            display: none;
         }
 
         #errorMessage {
@@ -168,7 +108,6 @@
             border: 1px solid #FED7D7;
             padding: 14px;
             border-radius: 8px;
-            margin-top: 0;
             margin-bottom: 15px;
             display: none;
             font-weight: 600;
@@ -176,14 +115,7 @@
             text-align: left;
         }
         
-        footer {
-            margin-top: auto;
-            padding: 20px 15px;
-            color: #A0AEC0;
-            font-size: 13px;
-            width: 100%;
-            text-align: center;
-        }
+        footer { margin-top: auto; padding: 20px; color: #A0AEC0; font-size: 13px; text-align: center; }
     </style>
 </head>
 <body>
@@ -192,92 +124,49 @@
         <h1>Gerador de Link PIX</h1>
         
         <div id="errorMessage"></div>
-        <textarea id="codigoPix" placeholder="Cole o código PIX 'Copia e Cola' aqui..."></textarea>
+        <textarea id="codigoPix" placeholder="Cole o código PIX aqui..."></textarea>
 
         <div class="button-row">
             <button class="botao-colar" onclick="colarCodigoPix(this)">Colar</button>
             <button class="botao-gerar" onclick="gerarLink()">Gerar Link</button>
         </div>
+
+        <button id="botaoCopiar" class="botao-copiar" onclick="copiarMensagem()">Copiar Mensagem</button>
         
-        <div id="resultado" style="display: none;">
-            <p><strong>Mensagem pronta para o cliente:</strong></p>
+        <div id="resultado">
             <div id="mensagemCliente"></div>
         </div>
-        
-        <button id="botaoCopiar" class="botao-copiar" onclick="copiarMensagem()" style="display: none;">Copiar Mensagem</button>
     </div>
     
-    <footer>
-        © 2026 Tamandaré Tintas. Operação Segura.
-    </footer>
+    <footer>© 2026 Tamandaré Tintas. Operação Segura.</footer>
 
 <script>
     function showErrorMessage(message) {
-        const errorMessageDiv = document.getElementById('errorMessage');
-        errorMessageDiv.textContent = message;
-        errorMessageDiv.style.display = 'block';
-        setTimeout(() => {
-            errorMessageDiv.style.display = 'none';
-        }, 5000);
-    }
-
-    function copiarMensagem() {
-        const mensagem = document.getElementById("mensagemCliente").innerText;
-        
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(mensagem).then(() => {
-                feedbackCopiar();
-            }).catch(err => {
-                fallbackCopiar(mensagem);
-            });
-        } else {
-            fallbackCopiar(mensagem);
-        }
-    }
-
-    function feedbackCopiar() {
-        const btn = document.getElementById('botaoCopiar');
-        btn.textContent = "Mensagem Copiada!";
-        btn.style.backgroundColor = "#2F855A"; 
-        setTimeout(() => { 
-            btn.textContent = "Copiar Mensagem"; 
-            btn.style.backgroundColor = ""; 
-        }, 2000);
-    }
-
-    function fallbackCopiar(texto) {
-        const tempTextArea = document.createElement('textarea');
-        tempTextArea.value = texto;
-        document.body.appendChild(tempTextArea);
-        tempTextArea.select();
-        try {
-            document.execCommand('copy');
-            feedbackCopiar();
-        } catch (err) {
-            alert("Copie manualmente.");
-        } finally {
-            document.body.removeChild(tempTextArea);
-        }
+        const div = document.getElementById('errorMessage');
+        div.textContent = message;
+        div.style.display = 'block';
+        setTimeout(() => { div.style.display = 'none'; }, 5000);
     }
 
     async function colarCodigoPix(btn) {
-        const codigoPixTextarea = document.getElementById('codigoPix');
-        const originalText = btn.textContent;
-        btn.textContent = "Colando...";
         try {
             const text = await navigator.clipboard.readText();
-            codigoPixTextarea.value = text;
+            if (!text.trim().startsWith("000201")) {
+                showErrorMessage("O conteúdo copiado não é um código PIX válido!");
+                return;
+            }
+            document.getElementById('codigoPix').value = text.trim();
+            const original = btn.textContent;
             btn.textContent = "Colado!";
-            setTimeout(() => { btn.textContent = originalText; }, 2000);
+            setTimeout(() => { btn.textContent = original; }, 2000);
         } catch (err) {
-            btn.textContent = "Use Ctrl+V";
-            setTimeout(() => { btn.textContent = originalText; }, 2000);
+            showErrorMessage("Erro ao acessar área de transferência.");
         }
     }
 
     function gerarLink() {
-        const codigoPix = document.getElementById('codigoPix');
-        let valorCodigo = codigoPix.value; 
+        const codigoInput = document.getElementById('codigoPix');
+        let valorCodigo = codigoInput.value.replace(/[\r\n]+/g, '').trim();
         
         document.getElementById('resultado').style.display = 'none';
         document.getElementById('botaoCopiar').style.display = 'none';
@@ -287,20 +176,13 @@
             return;
         }
 
-        valorCodigo = valorCodigo.replace(/[\r\n]+/g, '').trim();
-
-        if (valorCodigo.startsWith("http://") || valorCodigo.startsWith("https://")) {
-            showErrorMessage("Erro: Você colou um link. Cole apenas o código PIX 'Copia e Cola' (começa com 000201).");
-            return;
-        }
-
         if (!valorCodigo.startsWith("000201")) {
-            showErrorMessage("Código PIX inválido! O código deve começar com '000201'.");
+            showErrorMessage("Código PIX inválido!");
             return;
         }
 
         if (!valorCodigo.includes("qrpix.bradesco.com.br")) {
-            showErrorMessage("Segurança: Apenas códigos PIX do Bradesco (Tamandaré Tintas) são aceitos.");
+            showErrorMessage("Segurança: Apenas códigos PIX do Bradesco são aceitos.");
             return;
         }
 
@@ -315,27 +197,37 @@
             return;
         }
 
-        // Gera o Link (lembre-se de mudar a versão da imagem no outro repositório para ?v=3 se ela não aparecer)
-        const urlCompleta = `https://tamandarett.github.io/pix-pagina/?codigo=${encodeURIComponent(valorCodigo)}&t=${Date.now()}`;
+        const urlCompleta = `https://tamandarett.github.io/pix-pagina/?codigo=${encodeURIComponent(valorCodigo)}`;
         
         const mensagem = `Olá!
 
-Segue abaixo o link para copiar a chave PIX para pagamento à Tamandaré Tintas:
-
-👉 ${urlCompleta}
-
-Basta clicar no link acima — você será redirecionado para uma página onde poderá copiar a chave PIX ou escanear o QR Code.
+Segue o link para copiar a chave PIX para pagamento à Tamandaré Tintas, basta clicar na imagem acima ou no link abaixo e você será redirecionado para uma página onde poderá copiar a chave PIX ou escanear o QR Code.
 
 A chave tem validade de 12 horas, então, se possível, finalize o pagamento dentro desse período.
 
 Qualquer dúvida, estou à disposição!
 
-Obrigado(a)!`;
+Obrigado(a)!
+
+${urlCompleta}`;
         
-        document.getElementById('mensagemCliente').textContent = mensagem;
+        document.getElementById('mensagemCliente').innerText = mensagem;
         document.getElementById('resultado').style.display = 'block';
         document.getElementById('botaoCopiar').style.display = 'block';
-        codigoPix.value = ''; 
+        codigoInput.value = ''; 
+    }
+
+    function copiarMensagem() {
+        const mensagem = document.getElementById("mensagemCliente").innerText;
+        navigator.clipboard.writeText(mensagem).then(() => {
+            const btn = document.getElementById('botaoCopiar');
+            btn.textContent = "Mensagem Copiada!";
+            btn.style.backgroundColor = "#2F855A";
+            setTimeout(() => { 
+                btn.textContent = "Copiar Mensagem"; 
+                btn.style.backgroundColor = ""; 
+            }, 2000);
+        });
     }
 </script>
 </body>
